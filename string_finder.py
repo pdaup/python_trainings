@@ -5,18 +5,18 @@ from typing import Sequence, Tuple, List
 
 def parse_test_case(file: Sequence[str], string: str) -> Tuple[str, bool]:
     id_: str = ""
-    string_in_line: bool = False
+    string_in_file: bool = False
 
     for _, line in enumerate(file):
         if "Polarion ID: " in line:
             id_ = line.split("Polarion ID: ")[-1].split("\n")[0]
         elif id_ and string in line:
-            string_in_line = True
-    return id_, string_in_line
+            string_in_file = True
+    return id_, string_in_file
 
 
 def parse_framework_file(file: Sequence[str], string: str) -> List:
-    all_new_strings: list = []
+    new_strings: list = []
     for i, line in enumerate(file):
         if string in line:
             if line.startswith("def "):
@@ -25,12 +25,12 @@ def parse_framework_file(file: Sequence[str], string: str) -> List:
                 if file[index].startswith("def "):
                     prefix = file[index].split("def ")[1].split("(")[0]
                     new_string = f"{prefix}("
-                    all_new_strings.append(new_string)
+                    new_strings.append(new_string)
 
-    return all_new_strings
+    return new_strings
 
 
-def main(string: str = '') -> Tuple[set, set]:
+def extract_tc_ids(string: str = '') -> Tuple[set, set]:
     counter: int = 0
     results: set = set()
     search_strings: set = set()
@@ -51,14 +51,14 @@ def main(string: str = '') -> Tuple[set, set]:
                         new_search_strings = parse_framework_file(file=f, string=string)
                         new_strings.symmetric_difference_update(new_search_strings)
                     else:
-                        id_, string_in_line = parse_test_case(file=f, string=string)
-                        if string_in_line:
+                        id_, string_in_file = parse_test_case(file=f, string=string)
+                        if string_in_file:
                             results.add(id_)
         counter += 1
     return results, used_strings
 
 
 if __name__ == '__main__':
-    results, used_strings = main(sys.argv[1])
+    results, used_strings = extract_tc_ids(sys.argv[1])
     print(f"Used in test cases ({len(results)}): \n{results}")
     print(used_strings)
