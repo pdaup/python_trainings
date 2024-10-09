@@ -26,7 +26,6 @@ def parse_framework_file(file: Sequence[str], string: str) -> List:
                     prefix = file[index].split("def ")[1].split("(")[0]
                     new_string = f"{prefix}("
                     new_strings.append(new_string)
-
     return new_strings
 
 
